@@ -26,10 +26,10 @@ public class MQTTOperations implements MqttCallback {
 	private List<VirtualDevice> devices;
 	Hashtable flowStatus;
 
-	public MQTTOperations(String brokerUrl, String brokerPort, String serverId,
-			String username, String password, List<VirtualDevice> devices) {
+	public MQTTOperations(String brokerUrl, String brokerPort, String serverId, String username, String password,
+			List<VirtualDevice> devices) {
 		MqttConnectOptions connOpt = new MqttConnectOptions();
-		
+
 		this.brokerUrl = brokerUrl;
 		this.brokerPort = brokerPort;
 		this.serverId = serverId;
@@ -45,18 +45,16 @@ public class MQTTOperations implements MqttCallback {
 			if (!this.password.isEmpty())
 				connOpt.setPassword(this.password.toCharArray());
 
-			this.subscriber = new MqttClient(this.brokerUrl + ":"
-					+ this.brokerPort, this.serverId);
+			this.subscriber = new MqttClient(this.brokerUrl + ":" + this.brokerPort, this.serverId);
 			this.subscriber.setCallback(this);
 			this.subscriber.connect(connOpt);
 			subscribeDevices(1);
 			System.out.println("Topic devices subscribed");
-			
-			this.publisher = new MqttClient(this.brokerUrl + ":"
-					+ this.brokerPort, this.serverId + "_pub");
+
+			this.publisher = new MqttClient(this.brokerUrl + ":" + this.brokerPort, this.serverId + "_pub");
 			this.publisher.setCallback(this);
 			this.publisher.connect(connOpt);
-			
+
 		} catch (MqttException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -70,14 +68,12 @@ public class MQTTOperations implements MqttCallback {
 		try {
 			MqttConnectOptions connOpt = new MqttConnectOptions();
 
-			this.subscriber = new MqttClient(this.brokerUrl + ":"
-					+ this.brokerPort, this.serverId);
+			this.subscriber = new MqttClient(this.brokerUrl + ":" + this.brokerPort, this.serverId);
 			this.subscriber.setCallback(this);
 			this.subscriber.connect(connOpt);
 			subscribeDevices(1);
 
-			this.publisher = new MqttClient(this.brokerUrl + ":"
-					+ this.brokerPort, this.serverId + "_publisher");
+			this.publisher = new MqttClient(this.brokerUrl + ":" + this.brokerPort, this.serverId + "_publisher");
 			this.publisher.setCallback(this);
 			this.publisher.connect(connOpt);
 
@@ -91,8 +87,7 @@ public class MQTTOperations implements MqttCallback {
 	}
 
 	@Override
-	public void messageArrived(final String topic, final MqttMessage message)
-			throws Exception {
+	public void messageArrived(final String topic, final MqttMessage message) throws Exception {
 		System.out.println("-------------------------------------------------");
 		System.out.println("| Topic:" + topic);
 		System.out.println("| Message: " + new String(message.getPayload()));
@@ -103,8 +98,7 @@ public class MQTTOperations implements MqttCallback {
 			VirtualDevice device = getDeviceOfTopic(topic);
 			MqttMessage answer = buildGetAnwserDevice(topic, device, message);
 			this.publisher.publish(topic + "/RES", answer);
-		} else if (messageContent.substring(0, 4).contentEquals(
-				new String("FLOW"))) {
+		} else if (messageContent.substring(0, 4).contentEquals(new String("FLOW"))) {
 			final MqttClient publisherInt = this.publisher;
 			final VirtualDevice device = getDeviceOfTopic(topic);
 			String sensorName = messageContent.split(" ")[2];
@@ -113,15 +107,13 @@ public class MQTTOperations implements MqttCallback {
 			if (flow != null) {
 				flow.interrupt();
 			}
-			if (!isFlowSetOff(messageContent)){
+			if (!isFlowSetOff(messageContent)) {
 				flow = new Thread() {
 					public void run() {
 						try {
 							while (true) {
-								MqttMessage answer = buildFlowAnwserDevice(
-										topic, device, message);
-								publisherInt.publish(topic + "/RES",
-								answer);
+								MqttMessage answer = buildFlowAnwserDevice(topic, device, message);
+								publisherInt.publish(topic + "/RES", answer);
 							}
 						} catch (InterruptedException v) {
 							System.out.println(v);
@@ -146,14 +138,14 @@ public class MQTTOperations implements MqttCallback {
 		// TODO Auto-generated method stub
 
 	}
-	
-	private boolean isFlowSetOff(String msg){
+
+	private boolean isFlowSetOff(String msg) {
 		String sensorName = msg.split(" ")[2];
 		String configuration = msg.split(sensorName + " ")[1];
 		JSONObject confJSON = new JSONObject(configuration);
-		if (confJSON.has("turn")){
-			return(!confJSON.getBoolean("turn"));
-		}else{
+		if (confJSON.has("turn")) {
+			return (!confJSON.getBoolean("turn"));
+		} else {
 			return false;
 		}
 	}
@@ -163,6 +155,7 @@ public class MQTTOperations implements MqttCallback {
 			try {
 				String topic = topicPrefix + devices.get(i).getName() + "/#";
 				this.subscriber.subscribe(topic, qos);
+				System.out.println("MQTT device topic: "+topic);
 			} catch (MqttException e) {
 				e.printStackTrace();
 				System.exit(-1);
@@ -179,11 +172,10 @@ public class MQTTOperations implements MqttCallback {
 		return null;
 	}
 
-	private MqttMessage buildGetAnwserDevice(String topic,
-			VirtualDevice device, MqttMessage message) {
+	private MqttMessage buildGetAnwserDevice(String topic, VirtualDevice device, MqttMessage message) {
 		Random randomGenerator = new Random();
 		MqttMessage answer = new MqttMessage();
-		//GET INFO temperatureSensor
+		// GET INFO temperatureSensor
 		String messageContent = new String(message.getPayload());
 		String type = messageContent.split(" ")[1];
 		String sensorName = messageContent.split(" ")[2];
@@ -206,8 +198,7 @@ public class MQTTOperations implements MqttCallback {
 		return answer;
 	}
 
-	private MqttMessage buildFlowAnwserDevice(String topic,
-			VirtualDevice device, MqttMessage message)
+	private MqttMessage buildFlowAnwserDevice(String topic, VirtualDevice device, MqttMessage message)
 			throws InterruptedException {
 		Random randomGenerator = new Random();
 		MqttMessage answer = new MqttMessage();
@@ -217,7 +208,7 @@ public class MQTTOperations implements MqttCallback {
 		String type = messageContent.split(" ")[1];
 		String sensorName = messageContent.split(" ")[2];
 		String configuration = messageContent.split(sensorName + " ")[1];
-		
+
 		VirtualSensor sensor = device.getSensor(sensorName);
 
 		Vector<String> results = new Vector<String>();
@@ -242,7 +233,7 @@ public class MQTTOperations implements MqttCallback {
 		body.put(sensor.getName(), results.toArray());
 		body.put("FLOW", flow);
 		response.put("METHOD", "FLOW");
-		
+
 		response.put("CODE", "POST");
 		response.put("HEADER", header);
 		response.put("BODY", body);

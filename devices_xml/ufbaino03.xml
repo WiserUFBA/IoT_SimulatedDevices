@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<device name="ufbaino04">
+<device name="ufbaino03">
     <sensors>
         <sensor name="currentSensor01">
             <values type="integer">
-                <value>80</value>
-                <value>79</value>
-                <value>78</value>
-                <value>77</value>
-                <value>76</value>
-                <value>75</value>
-                <value>74</value>
-                <value>73</value>
-                <value>72</value>
-                <value>71</value>
-                <value>70</value>
+                <value>1</value>
+                <value>2</value>
+                <value>2</value>
+                <value>3</value>
+                <value>3</value>
+                <value>3</value>
+                <value>3</value>
+                <value>4</value>
+                <value>4</value>
+                <value>4</value>
+                <value>5</value>
+                <value>5</value>
+                <value>5</value>
+                <value>5</value>
+                <value>5</value>
+                <value>5</value>
+                <value>6</value>
+                <value>6</value>
+                <value>6</value>
+                <value>6</value>
+                <value>6</value>
+                <value>6</value>
             </values>
         </sensor>
         <sensor name="temperatureSensor">
